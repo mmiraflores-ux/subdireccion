@@ -1,0 +1,37 @@
+# Ejecución local o en un servidor propio:  docker compose up -d
+# Luego abre http://localhost:8080
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: subdireccion
+      POSTGRES_USER: subdireccion
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cambia-esta-contrasena}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U subdireccion -d subdireccion"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: subdireccion
+      DB_USER: subdireccion
+      DB_PASSWORD: ${DB_PASSWORD:-cambia-esta-contrasena}
+      DB_SSLMODE: disable
+      SETUP_TOKEN: ${SETUP_TOKEN:-}
+      TRUST_PROXY: "0"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

@@ -1,0 +1,19 @@
+# Blueprint de Render (plan gratuito). La base de datos vive en Neon (gratuita,
+# sin vencimiento); pega su cadena de conexión en DATABASE_URL al crear el servicio.
+services:
+  - type: web
+    name: subdireccion
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health.php
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # Render la pedirá al crear el servicio
+      - key: SETUP_TOKEN
+        generateValue: true  # código para la configuración inicial; bórralo después de usarlo
+      - key: APP_TIMEZONE
+        value: America/Mexico_City
+      - key: TRUST_PROXY
+        value: "1"
